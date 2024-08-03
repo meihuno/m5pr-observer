@@ -49,7 +49,7 @@ optional arguments:
                         target date
 ```
 
-### コードの責務（リファクタリングが必要）
+### 各pythonコードの責務
 
 download_stock_info.py: DBへの格納
 
@@ -62,3 +62,5 @@ edit_wordpress.py : WordPressへのアクセス
 option_util.py: コマンドラインオプション
 
 gogo_update_wordpress_index_page.py : サイト更新
+
+（リファクタリングが必要と思ゆる）
