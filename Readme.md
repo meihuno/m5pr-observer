@@ -19,18 +19,20 @@ https://m5pr-observer.com/
 以下のpythonライブラリをインストールすること。
 
 yfinance
+
 python-wordpress-xmlrpc
 
-以下の環境変数をセットすること。
+以下の環境変数を.bashrcなどにセットすること。
 
 WORDPRESS_USERNAME
+
 WORDPRESS_PASSWORD
 
 動作確認はpython3.8.12で行った。3.9以降でも動くと思う（検証はしていない）。
 
 ### 使い方
 
-以下のコマンドをserver上でcronで定時実行し、サイトを自動更新する。
+以下のコマンドをserver上のcronに定時実行し、サイトを自動更新する。
 
 インデックス情報を取得してDB(./index_history.sqlite)に格納。
 
