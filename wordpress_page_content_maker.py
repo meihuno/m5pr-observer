@@ -76,7 +76,9 @@ class WordPressPageContentMaker(object):
     def _ret_today_state(self, today):
         today_str1 = self._ret_ymd_string(today)
         daystring = self._ret_daystring(today)
-        today_line = f'今日は<strong>{today_str1}</strong>、<strong>{daystring}</strong>です。'
+        now = datetime.now()
+        now_str = now.strftime("%Y-%m-%d %H:%M:%S")
+        today_line = f'今日は<strong>{today_str1}</strong>、<strong>{daystring}</strong>です。(DEBUG:{now_str})'
         return today_line
 
     def _ret_date_str(self, today):
@@ -182,7 +184,7 @@ class WordPressPageContentMaker(object):
                 
         pp.pprint(status_dict)
         if conclusion_state == '':
-            conclusion_state = '先週は5%ルール発動していません。今週のSP500とNASDAQ100の推移を示します。'
+            conclusion_state = '今日は5%ルール発動していません。今週のSP500とNASDAQ100の推移を示します。'
         #print(conclusion_state)
         site_statement = self._ret_site_statement()
         today_state = self._ret_today_state(today)
@@ -257,7 +259,7 @@ class WordPressPageContentMaker(object):
             print([key, value_last_week, value_this_week, percentage_change])
 
         if conclusion_state == '':
-            conclusion_state = '今週は<strong>マイナス5%ルール、発動しませんでした</strong>。よい週末をお過ごしください。'
+            conclusion_state = '今日は<strong>マイナス5%ルール、発動しませんでした</strong>。よい週末をお過ごしください。'
         else:
             link_line = """<p><strong>時は来たッ！！ いざ！ </strong><a href="https://www.rakuten-sec.co.jp/ITS/V_ACT_Login.html">楽天証券</a> or <a href="https://www.sbisec.co.jp/contents/">SBI証券</a>  へ<strong>Go！！</strong></p>"""
             conclusion_state += link_line

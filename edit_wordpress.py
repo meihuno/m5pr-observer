@@ -8,13 +8,20 @@ from wordpress_xmlrpc.methods.posts import GetPost, GetPosts, NewPost, EditPost
 # from wordpress_xmlrpc.methods.pages import GetPage, GetPageStatusList
 import pprint as pp
 
+GOGO_ENVIRONMENT = os.getenv('GOGO_ENVIRONMENT')
+
 class EditWordPress(object):
 
     def __init__(self):
         # Set URL, ID, Password
         self.WORDPRESS_ID = os.getenv('WORDPRESS_USERNAME')
         self.WORDPRESS_PW = os.getenv('WORDPRESS_PASSWORD')
-        self.WORDPRESS_URL = "http://5percentruleroom.local/xmlrpc.php"
+        # 開発環境ではlocal切り替え
+        if GOGO_ENVIRONMENT == 'development':
+            self.WORDPRESS_URL = "http://5percentruleroom.local/xmlrpc.php"
+        else:
+            self.WORDPRESS_URL = "http://m5pr-observer.com/xmlrpc.php"
+
         self.target_page_title = 'Top Page'
         # if post.title == 'WordPress練習ページ':
 
