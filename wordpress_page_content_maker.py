@@ -70,7 +70,7 @@ class WordPressPageContentMaker(object):
         return rstr
     
     def _ret_site_statement(self):
-        site_statement = '本サイトは「<bold>投資塾ゆう</bold>」さんが提唱された「<strong>▲（マイナス）5%ルール</strong>」投資法を実践することを目的として、<strong>SP500</strong>と<strong>NASDAQ1000</strong>指数が<strong>先週金曜日から5%下落しているか(ルール発動条件)</strong>を表示します。<br>'
+        site_statement = '本サイトは「<bold>投資塾ゆう</bold>」さんが提唱された「<strong>▲（マイナス）5%ルール</strong>」投資法を実践することを目的として、<strong>SP500</strong>と<strong>NASDAQ100</strong>指数が<strong>先週金曜日から5%下落しているか(ルール発動条件)</strong>を表示します。<br>'
         return site_statement
 
     def _ret_today_state(self, today):
@@ -78,7 +78,7 @@ class WordPressPageContentMaker(object):
         daystring = self._ret_daystring(today)
         now = datetime.now()
         now_str = now.strftime("%Y-%m-%d %H:%M:%S")
-        today_line = f'今日は<strong>{today_str1}</strong>、<strong>{daystring}</strong>です。(DEBUG:{now_str})'
+        today_line = f'今日は<strong>{today_str1}</strong>、<strong>{daystring}</strong>です。(Update: {now_str})'
         return today_line
 
     def _ret_date_str(self, today):
