@@ -72,4 +72,4 @@ option_util.py: コマンドラインオプション
 
 gogo_update_wordpress_index_page.py : サイト更新
 
-（リファクタリングが必要と思ゆる）
+（リファクタリングが必要と思われます）
