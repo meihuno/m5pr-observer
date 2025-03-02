@@ -6,6 +6,7 @@ from wordpress_page_content import WordPressPageContent
 import pprint as pp
 
 WEEK_NUM_FRIDAY = 4
+MINUS_5PERCENT_RULE = -5.0
 
 class WordPressPageContentMaker(object):
     """Wordpressに表示する内容を生成する。なるべくタグは含めないようにする。なるべく。"""
@@ -70,7 +71,7 @@ class WordPressPageContentMaker(object):
         return rstr
     
     def _ret_site_statement(self):
-        site_statement = '本サイトは「<bold>投資塾ゆう</bold>」さんが提唱された「<strong>▲（マイナス）5%ルール</strong>」投資法を実践することを目的として、<strong>SP500</strong>と<strong>NASDAQ100</strong>指数が<strong>先週金曜日から5%下落しているか(ルール発動条件)</strong>を表示します。<br>'
+        site_statement = '本サイトは「<bold>投資塾ゆう</bold>」さんが提唱された「<strong>▲（マイナス）5%ルール</strong>」投資法を実践することを目的として、<strong>SP500</strong>と<strong>NASDAQ1000</strong>指数が<strong>先週金曜日から5%下落しているか(ルール発動条件)</strong>を表示します。<br>'
         return site_statement
 
     def _ret_today_state(self, today):
@@ -78,7 +79,7 @@ class WordPressPageContentMaker(object):
         daystring = self._ret_daystring(today)
         now = datetime.now()
         now_str = now.strftime("%Y-%m-%d %H:%M:%S")
-        today_line = f'今日は<strong>{today_str1}</strong>、<strong>{daystring}</strong>です。(Update: {now_str})'
+        today_line = f'今日は<strong>{today_str1}</strong>、<strong>{daystring}</strong>です。(DEBUG:{now_str})'
         return today_line
 
     def _ret_date_str(self, today):
@@ -109,6 +110,20 @@ class WordPressPageContentMaker(object):
     def _ret_threshold(self, value):
         return str(round(value * 0.95, 3))
 
+    def check_friday_index_value(self, today, index_key_list):
+        db_manager = self._ret_db_manager()
+        last_friday = self._ret_previous_friday(today)
+        last_friday_str = self._ret_date_str(last_friday)
+        
+        gogo_weekend_flag = True
+        for key in index_key_list:
+            value = db_manager.get_value_by_date(key, last_friday_str)
+            # 金曜日で値取得できていないindexがある場合は週末判定はFalse
+            if value is None:
+                gogo_weekend_flag = False
+        db_manager.close()
+        return gogo_weekend_flag
+
     def ret_weekday_page_content(self, today, index_key_list):
         # 平日のコンテンツはそもそも週末とは異なる。
         # 今日は2024年07月29日です。5%ルールは発動していません。
@@ -138,8 +153,7 @@ class WordPressPageContentMaker(object):
             
             last_friday = self._ret_previous_friday(today)
             last_friday_str = self._ret_date_str(last_friday)
-            print(last_friday)
-
+            
             one_week_ago_friday = last_friday - timedelta(days=7)
             one_week_ago_friday_str = one_week_ago_friday.strftime('%Y-%m-%d 00:00:00')
 
@@ -151,7 +165,7 @@ class WordPressPageContentMaker(object):
             # date_object = datetime.strptime(date_s, '%Y-%m-%d %H:%M:%S')
             last_friday_dateday = self._ret_dateday_string('先週', last_friday)
             
-            if p1 < -5.0:
+            if p1 < MINUS_5PERCENT_RULE:
                 conclusion_state += f'{key}で5%ルール発動中です。'
 
             tmp_dict = ret_weekday_row_dict(last_friday_dateday, last_friday_value, updown, p1, threshold )
@@ -182,10 +196,9 @@ class WordPressPageContentMaker(object):
                 tmp_dict = ret_weekday_row_dict(this_week_dateday, row_value, tmp_updown, tmp_percentage_change, tmp_threshold)
                 status_dict[key].append( tmp_dict )
                 
-        pp.pprint(status_dict)
         if conclusion_state == '':
             conclusion_state = '今日は5%ルール発動していません。今週のSP500とNASDAQ100の推移を示します。'
-        #print(conclusion_state)
+        
         site_statement = self._ret_site_statement()
         today_state = self._ret_today_state(today)
         wppc_box = WordPressPageContent()
@@ -245,7 +258,7 @@ class WordPressPageContentMaker(object):
             updown = self._updown_string(percentage_change)
             result_state = self._ret_rule_status(percentage_change)
             
-            if percentage_change < -5.0:
+            if percentage_change < MINUS_5PERCENT_RULE:
                 conclusion_state += f"<strong>{key}はマイナス5%ルール発動中です！</strong>"
             
             # WordpressのHTMLもこのクラスでやった方がいい。キーが異なるクラスに渡るのはよくない
@@ -280,7 +293,7 @@ class WordPressPageContentMaker(object):
         Returns: その日のコンテンツのHTML
         """
         # 週末か平日かでWordPressのページの内容を変える
-        rcontent = ''
+        rcontent = 'Something wrong!'
         
         fetcher = IndexFetcher()
         index_key_list = fetcher.ret_index_symbol_list()
@@ -288,13 +301,14 @@ class WordPressPageContentMaker(object):
         today = self.today
         dayofweek = today.weekday()
 
+        check_friday_index_value = self.check_friday_index_value(today, index_key_list)
         # 平日か週末かで分岐
-        if dayofweek > WEEK_NUM_FRIDAY:
+        if dayofweek > WEEK_NUM_FRIDAY and check_friday_index_value == True:
             # 週末だ！
-            print("WeekEnd!")
+            print("Week End!")
             rcontent = self.ret_weekend_page_content(today, index_key_list)
 
-        elif dayofweek >= 0 and dayofweek <= WEEK_NUM_FRIDAY:
+        elif dayofweek >= 0: #and dayofweek <= WEEK_NUM_FRIDAY:
             # 平日だ！
             print("Week Day!")
             rcontent = self.ret_weekday_page_content(today, index_key_list)

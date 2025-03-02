@@ -43,7 +43,6 @@ class IndexFetcher:
                 dayofweek = date_obj.weekday()
                 download_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                 
-                print([name, value, date_str])
                 index_data_list.append(IndexData(name, value, date_str, download_date, dayofweek))
 
         return index_data_list
@@ -102,6 +101,17 @@ class DatabaseManager:
             rows = cursor.fetchall()
             cursor.close()
             return rows
+
+    def get_value_by_date(self, symbol, date_str):
+        with self.conn:
+            cursor = self.conn.execute('''
+                SELECT value 
+                FROM indices 
+                WHERE symbol = ? AND date = ?
+            ''', (symbol, date_str))
+            result = cursor.fetchone()
+            # print(result)
+            return result[0] if result else None
 
     def close(self):
         self.conn.close()
