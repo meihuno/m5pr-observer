@@ -45,7 +45,7 @@ optional arguments:
                         1d,5d,1mo,3mo,6mo,1y,2y,5y,10y,ytd,max
 ```
 
-WordpressのホームページにUploadする。https://m5pr-observer.com/の構造に依拠している。
+WordpressのホームページにUploadする。https://m5pr-observer.com/ の構造に依拠している。
 
 ```
 usage: gogo_update_wordpress_index_page.py [-h] [--phase PHASE] [--date DATE]
