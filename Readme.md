@@ -22,7 +22,7 @@ yfinance
 
 python-wordpress-xmlrpc
 
-以下の環境変数を.bashrcなどにセットすること。
+以下の環境変数を.bashrcなどにセットすること。 値はWORDPRESSの管ゆユーのの値せセットする。
 
 WORDPRESS_USERNAME
 
@@ -30,7 +30,7 @@ WORDPRESS_PASSWORD
 
 動作確認はpython3.8.12で行った。3.9以降でも動くと思う（検証はしていない）。
 
-### 使い方
+### 使い方（サイト更新）
 
 以下のコマンドをserver上のcronに定時実行し、サイトを自動更新する。
 
@@ -58,6 +58,17 @@ optional arguments:
                         target date
 ```
 
+### 使い方（投資シミュレーション）
+
+python calculate_weekly_change.py
+
+data下に投資シミュレーション結果のCSVが格納される。
+
+python analysis_timelines.py 
+
+グラフを描き、image下にグラフの画像を保存します。
+
+
 ### 各pythonコードの責務
 
 download_stock_info.py: DBへの格納
@@ -71,5 +82,11 @@ edit_wordpress.py : WordPressへのアクセス
 option_util.py: コマンドラインオプション
 
 gogo_update_wordpress_index_page.py : サイト更新
+
+investment_calculator.py  : 投資シミュレーション（計算）
+
+calculate_weekly_change.py : 投資シミュレーション実施（実験設定）
+
+analysis_timelines.py : 投資シミュレーション結果のグラフ描画
 
 （リファクタリングが必要と思われます）

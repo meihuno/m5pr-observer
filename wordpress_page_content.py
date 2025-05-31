@@ -1,6 +1,30 @@
+from datetime import datetime, timedelta
+from daytime_util import DayTimeUtil
+
+MINUS_5PERCENT_RULE = -5.0
 
 class WordPressPageContent(object):
     """WordpresのHTMLを生成する。コンテンツをそのままタグで包むようにする。なるべく。"""
+
+    def __init__(self):
+        self.day_map = {
+            'Monday': '月曜日',
+            'Tuesday': '火曜日',
+            'Wednesday': '水曜日',
+            'Thursday': '木曜日',
+            'Friday': '金曜日',
+            'Saturday': '土曜日',
+            'Sunday': '日曜日'
+        }
+        self.dtu = DayTimeUtil()
+
+    def _ret_today_state(self, today):
+        today_str1 = self.dtu.ret_ymd_string(today)
+        daystring = self.dtu.ret_daystring(today)
+        now = datetime.now()
+        now_str = now.strftime("%Y-%m-%d %H:%M:%S")
+        today_line = f'今日は<strong>{today_str1}</strong>、<strong>{daystring}</strong>です。(Update: {now_str})'
+        return today_line
 
     def _ret_red_tag(self):
         open1 = '<mark style=\"background-color:rgba(0, 0, 0, 0);color:#f62b01\" class=\"has-inline-color\">'
@@ -17,8 +41,46 @@ class WordPressPageContent(object):
             rstr = '<p>SP500のスコアは<a href="https://stockcharts.com/sc3/ui/?s=%24SPX">stockchartsを$SPXで検索する</a>からも確認できます。NASDAQ100のスコアは<a href="https://stockcharts.com/sc3/ui/?s=%24NDX">stockchartsを$NDXで検索する</a>ことでも確認できます。</p>'
         return rstr
 
-    def ret_weekday_content(self, site_statement, today_state, result_state, status_dict):
+    def ret_conclusion_state(self, key, percentage_change):
+        conclusion_state = ''
+
+        if percentage_change < MINUS_5PERCENT_RULE:
+            conclusion_state += f"<strong>{key}はマイナス5%ルール発動中です！</strong>"
+
+        if conclusion_state == '':
+            conclusion_state = '今日は<strong>マイナス5%ルール、発動しませんでした</strong>。よい週末をお過ごしください。'
+        else:
+            link_line = """<p><strong>時は来たッ！！ いざ！ </strong><a href="https://www.rakuten-sec.co.jp/ITS/V_ACT_Login.html">楽天証券</a> or <a href="https://www.sbisec.co.jp/contents/">SBI証券</a>  へ<strong>Go！！</strong></p>"""
+            conclusion_state += link_line
+    
+        return conclusion_state
+
+    def _ret_site_statement_old(self):
+        site_statement = '本サイトは「<bold>投資塾ゆう</bold>」さんが提唱された「<strong>▲（マイナス）5%ルール</strong>」投資法を実践することを目的として、<strong>SP500</strong>と<strong>NASDAQ100</strong>指数が<strong>先週金曜日から5%下落しているか(ルール発動条件)</strong>を表示します。<br>'
+        return site_statement
+
+    def _ret_site_statement(self):
+        site_statement = '本サイトはSP500やNASDAQ100の騰落率を見て一喜一憂することを目的として、<strong>SP500</strong>と<strong>NASDAQ100</strong>指数が<strong>先週金曜日から5%下落しているか(ルール発動条件)</strong>を表示しています。<br>'
+        return site_statement
+
+    def ret_weekday_content(self, today, status_dict):
         
+        def ret_conclusion_state(status_dict):
+            conclusion_state = ''
+            for key, stats_list in status_dict.items():
+                percentage_change = stats_list[-1]['percentage_change']
+                if percentage_change < MINUS_5PERCENT_RULE:
+                    conclusion_state += f'{key}で5%ルール発動中です。'
+            
+            if conclusion_state == '':
+                conclusion_state = '今日は5%ルール発動していません。今週のSP500とNASDAQ100の推移を示します。'
+        
+            return conclusion_state
+
+        result_state = ret_conclusion_state(status_dict)
+        today_state = self._ret_today_state(today)
+        site_statement = self._ret_site_statement()
+
         def ret_weekday_table_row_lines(day_status_list):
             rlines = []
             for content_dict in day_status_list:
@@ -63,7 +125,6 @@ class WordPressPageContent(object):
             return line
 
 
-
         def ret_weekday_table(status_dict):
             rlist = []
             for key, content_dict in status_dict.items():
@@ -85,7 +146,7 @@ class WordPressPageContent(object):
             return rstr
         
         table_line = ret_weekday_table(status_dict)
-        #  <p>{site_statement}</p> <p>{today_state} {result_state}</p>
+
         rline = f"""
 
         <!-- wp:paragraph -->        
@@ -96,9 +157,28 @@ class WordPressPageContent(object):
         """
 
         return rline
-        
+    
+    def ret_weekend_content(self, today, status_dict):
 
-    def ret_weekend_content(self, site_statement, today_state, result_state, status_dict):
+        def ret_conlusion_state(state_dict):
+            
+            conclusion_state = ''
+            for key, stats in state_dict.items():
+                percentage_change = stats['percentage_change']
+                if percentage_change < MINUS_5PERCENT_RULE:
+                    conclusion_state += f"<strong>{key}はマイナス5%ルール発動中です！</strong>"
+
+            if conclusion_state == '':
+                conclusion_state = '今日は<strong>マイナス5%ルール、発動しませんでした</strong>。よい週末をお過ごしください。'
+            else:
+                link_line = """<p><strong>時は来たッ！！ いざ！ </strong>楽天証券 or SBI証券へ<strong>Go！！</strong></p>"""
+                conclusion_state += link_line
+
+            return conclusion_state
+        
+        result_state = ret_conlusion_state(status_dict)
+        today_state = self._ret_today_state(today)
+        site_statement = self._ret_site_statement()
 
         def ret_weekend_row(status_dict):
             rlist = []
@@ -107,7 +187,7 @@ class WordPressPageContent(object):
                 value = stats['value']
                 past_value = stats['past_value']
                 updown = stats['updown']
-                result = stats['result']
+                result = stats['status']
 
                 tr_line = ret_tr_line(key, value, past_value, updown, result)
                 rlist.append(tr_line)
