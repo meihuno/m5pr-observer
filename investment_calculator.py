@@ -23,8 +23,8 @@ class InvestmentCalculator:
     TAX_RATE = 0.2 # 税率20%
     FOREX_INITIAL_RATE = 115
     
-    M5PR_SLOPE_LIMIT = 20
-    # M5PR_SLOPE_LIMIT = 10
+    # M5PR_SLOPE_LIMIT = 20
+    M5PR_SLOPE_LIMIT = 10
     M5PR_OUT_RANGE = 300
     
     SP500_PER_THRESHOLD = 30
@@ -47,7 +47,7 @@ class InvestmentCalculator:
                  per_upper = 30, 
                  per_lower = 25,
                  index_name = 'SP500',
-                 start_date = '1996-10-30',
+                 start_date = '2025-07-01',
                  verbose = True
                  ):
         """
@@ -120,6 +120,7 @@ class InvestmentCalculator:
         self.filename = f"{self.index_name}_{m5pr_key}_{m5pr_skip_key}_{yr_key}_{yl_key}_{split_key}_investment_results.csv"
 
         self.sp500_per_dict = self.ret_sp500_per_dict()
+        # pp.pprint(self.sp500_per_dict)
 
 
     def ret_sp500_per_dict(self):
@@ -482,9 +483,12 @@ class InvestmentCalculator:
                             rflag = False
                         elif self.m5pr_skip_key == 'per' and sp500_per > self.per_upper:
                             rflag = False
-                        print(["danger line", delta, price, date1, '->', date, "slope", slope])
+                        if rflag == True:
+                            print(["safe line", delta, price, date1, '->', date, "slope", slope])
+                        elif rflag == False:
+                            print(["danger line", delta, price, date1, '->', date, "slope", slope])
                     else:
-                        print(["safe line", delta, price, date1, '->', date, "slope", slope])
+                        print(["gogo m5pr", delta, price, date1, '->', date, "slope", slope])
                         
         return rflag
     
@@ -796,8 +800,13 @@ class InvestmentCalculator:
         for i, current_data in enumerate(target_data):
             
             #　投資期間が15年未満の場合はスキップ
-            if current_data.date >  datetime.today() - relativedelta(years=self.investment_period_year):
-                continue
+            #  stock_dataはdummyで未来のデータ。
+            if current_data.date >= datetime.today():
+                pass
+            else:
+                if current_data.date > datetime.today() - relativedelta(years=self.investment_period_year):
+                    continue
+
             # 投資開始日から15年後のデータを取得
             investment_date = current_data.date
             future_date = investment_date + relativedelta(years=self.investment_period_year)
@@ -842,16 +851,22 @@ class InvestmentCalculator:
         :param sp500_data: SP500の価格データリスト
         :return: 各日付の利益
         """
-                
+        
         target_data, weekday_dict = self.ret_target_data(sp500_data)
+
         for i, current_data in enumerate(target_data):
             
             initial_forex = None
             final_forex = None
             
             #　投資期間が15年未満の場合はスキップ
-            if current_data.date > datetime.today() - relativedelta(years=self.investment_period_year):
-                continue
+            #  stock_dataはdummyで未来のデータ。
+            if current_data.date >= datetime.today():
+                pass
+            else:
+                if current_data.date > datetime.today() - relativedelta(years=self.investment_period_year):
+                    continue
+            
             # 投資開始日から15年後のデータを取得
             investment_date = current_data.date
             future_date = investment_date + relativedelta(years=self.investment_period_year)

@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 import option_util as ou
 import pandas as pd
 
-def gogo_calculator(sp500_data, forex_data_dict, options, dir='dataN'):
+def gogo_calculator(sp500_data, forex_data_dict, options, dir='data'):
         print(["Gogo", options])
         calculator = InvestmentCalculator(
             sp500_data=sp500_data, 
@@ -92,6 +92,7 @@ if __name__ == "__main__":
     # print(f"為替データ: {k} = {v['rate']:.3f} ({v['date']})")
     # save_forex_date(forex_data_dict)
     # exit()
+    exit()
     
     print(f"Start {index_key}")
 
@@ -111,8 +112,8 @@ if __name__ == "__main__":
         "index_name": index_key,
         "nisa_monthly_investment": 50000, 
         "gogo_split": True,
-        "gogo_m5pr": False,
-        "m5pr_skip": False,
+        "gogo_m5pr": True,
+        "m5pr_skip": True,
         "m5pr_skip_key": "slope",
         "gogo_year_first": False,
         "year_first_control":  'first_attack',
